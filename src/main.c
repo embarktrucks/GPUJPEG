@@ -154,6 +154,8 @@ main(int argc, char *argv[])
                 param_image.color_space = GPUJPEG_NONE;
             else if ( strcmp(optarg, "rgb") == 0 )
                 param_image.color_space = GPUJPEG_RGB;
+            else if ( strcmp(optarg, "bgr") == 0 )
+                param_image.color_space = GPUJPEG_BGR;
             else if ( strcmp(optarg, "yuv") == 0 )
                 param_image.color_space = GPUJPEG_YUV;
             else if ( strcmp(optarg, "ycbcr") == 0 )
@@ -326,7 +328,7 @@ main(int argc, char *argv[])
     }
 
     // Detect color spalce
-    if ( gpujpeg_image_get_file_format(argv[0]) == GPUJPEG_IMAGE_FILE_YUV && param_image.color_space == GPUJPEG_RGB ) {
+    if ( gpujpeg_image_get_file_format(argv[0]) == GPUJPEG_IMAGE_FILE_YUV && (param_image.color_space == GPUJPEG_RGB || param_image.color_space == GPUJPEG_BGR) ) {
         param_image.color_space = GPUJPEG_YUV;
     }
 
@@ -527,14 +529,21 @@ main(int argc, char *argv[])
             const char* output = argv[index + 1];
             if ( encode == 1 ) {
                 static char buffer_output[255];
-                if ( param_image.color_space != GPUJPEG_RGB ) {
+                if ( (param_image.color_space != GPUJPEG_RGB) && (param_image.color_space != GPUJPEG_BGR) ) {
                     sprintf(buffer_output, "%s.decoded.yuv", output);
                 }
-                else {
+                else if(param_image.color_space == GPUJPEG_RGB){
                     if ( param_image.comp_count == 1 ) {
                         sprintf(buffer_output, "%s.decoded.r", output);
                     } else {
                         sprintf(buffer_output, "%s.decoded.rgb", output);
+                    }
+                }
+                else {
+                    if ( param_image.comp_count == 1 ) {
+                        sprintf(buffer_output, "%s.decoded.b", output);
+                    } else {
+                        sprintf(buffer_output, "%s.decoded.bgr", output);
                     }
                 }
                 input = output;
